@@ -1,0 +1,273 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Weaselway: a GPU-accelerated Linux desktop on WSL2</title>
+<meta name="description" content="Weaselway runs GNOME, Plasma or another Wayland desktop on WSL2, renders it on your GPU, and shows it in a window on Windows.">
+<meta name="color-scheme" content="light dark">
+<link rel="preload" href="fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/space-grotesk-latin.woff2" as="font" type="font/woff2" crossorigin>
+<style>
+  @font-face { font-family: "Inter"; font-weight: 400 700; font-display: swap; src: url(fonts/inter-latin.woff2) format("woff2"); }
+  @font-face { font-family: "Space Grotesk"; font-weight: 500 700; font-display: swap; src: url(fonts/space-grotesk-latin.woff2) format("woff2"); }
+  :root {
+    --bg: #f7f6fb; --fg: #1b1a22; --muted: #5e5b6b; --line: #e2dfec;
+    --card: #ffffff; --accent: #c2541b; --code: #f0eef6;
+    --hero: linear-gradient(135deg, #1a1440 0%, #4a1f6e 45%, #b8432a 85%, #e8873a 100%);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #111018; --fg: #ecebf2; --muted: #a6a3b5; --line: #2a2836;
+      --card: #1a1923; --accent: #f0904f; --code: #22202d;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--fg);
+    font: 17px/1.6 Inter, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  h1, h2, h3, .lead, .btn, .chips li, .how, .stats strong, .flow li {
+    font-family: "Space Grotesk", system-ui, sans-serif;
+  }
+  .wrap { max-width: 62rem; margin: 0 auto; padding: 0 1.25rem; }
+  a { color: var(--accent); }
+  h2 { font-size: 1.75rem; margin: 0 0 .5rem; letter-spacing: -.02em; }
+  h3 { font-size: 1.05rem; margin: 0 0 .3rem; }
+  p { margin: 0 0 1rem; }
+  section { padding: 4rem 0 0; }
+  .intro { color: var(--muted); max-width: 42rem; margin-bottom: 1.75rem; }
+  code { font: .88em ui-monospace, "Cascadia Mono", Menlo, Consolas, monospace; background: var(--code); padding: .1em .3em; border-radius: .25rem; }
+  pre { background: var(--code); border-radius: .5rem; padding: .8rem 1rem; overflow-x: auto; margin: 0; font-size: .95rem; }
+  pre code { background: none; padding: 0; }
+
+  /* Hero */
+  .hero { background: var(--hero); color: #fff; padding: 4.5rem 0 11rem; position: relative; overflow: hidden; }
+  .hero::after {
+    content: ""; position: absolute; inset: 0; pointer-events: none;
+    background: radial-gradient(60rem 30rem at 85% -10%, rgba(255,255,255,.18), transparent 60%);
+  }
+  .hero .wrap { position: relative; z-index: 1; }
+  .hero h1 { font-size: clamp(2.6rem, 8vw, 4.2rem); line-height: 1; margin: 0 0 1rem; letter-spacing: -.03em; }
+  .hero .lead { font-size: clamp(1.2rem, 3vw, 1.6rem); line-height: 1.35; max-width: 38rem; margin-bottom: .9rem; font-weight: 500; }
+  .hero .sub { color: rgba(255,255,255,.8); max-width: 36rem; }
+  .chips { display: flex; flex-wrap: wrap; gap: .5rem; margin: 1.25rem 0 2rem; padding: 0; list-style: none; }
+  .chips li { background: rgba(255,255,255,.14); border: 1px solid rgba(255,255,255,.25); border-radius: 2rem; padding: .25rem .8rem; font-size: .9rem; font-weight: 600; }
+  .buttons { display: flex; flex-wrap: wrap; gap: .75rem; }
+  .btn { display: inline-block; padding: .7rem 1.2rem; border-radius: .6rem; text-decoration: none; font-weight: 600; }
+  .btn.primary { background: #fff; color: #3a1752; }
+  .btn.ghost { color: #fff; border: 1px solid rgba(255,255,255,.5); }
+
+  .shot { margin: -8.5rem auto 0; position: relative; z-index: 2; }
+  .shot img { width: 100%; height: auto; display: block; border-radius: .8rem; box-shadow: 0 25px 70px rgba(20,10,50,.35); }
+  .shot figcaption { font-size: .9rem; color: var(--muted); margin-top: .7rem; text-align: center; }
+
+  /* Distros */
+  .distros { display: grid; gap: 1rem; }
+  .distro { background: var(--card); border: 1px solid var(--line); border-left: 6px solid var(--c); border-radius: .9rem; padding: 1.3rem 1.4rem; display: grid; grid-template-columns: 1fr minmax(0, 27rem); gap: 1rem 1.75rem; align-items: center; }
+  .distro > div { display: flex; flex-direction: column; gap: .45rem; }
+  .distro h3 { font-size: 1.4rem; margin: 0; display: flex; align-items: center; gap: .55rem; }
+  .distro h3::before { content: ""; width: .8rem; height: .8rem; border-radius: 50%; background: var(--c); }
+  .distro p { margin: 0; color: var(--muted); font-size: .95rem; }
+  .distro .how { font-size: .8rem; text-transform: uppercase; letter-spacing: .06em; font-weight: 700; color: var(--c); }
+  .distro pre { font-size: .85rem; white-space: pre-wrap; overflow-wrap: anywhere; }
+  .nixos { --c: #5277c3; }
+  .ubuntu { --c: #e95420; }
+  .arch { --c: #1793d1; }
+  .then { margin-top: 1rem; display: grid; grid-template-columns: 1fr minmax(0, 27rem); gap: 1rem 1.75rem; align-items: center; border: 1px dashed var(--line); border-radius: .9rem; padding: 1.3rem 1.4rem 1.3rem calc(1.4rem + 6px); }
+  .then p { margin: 0; }
+  .then p + p { margin-top: .6rem; color: var(--muted); font-size: .95rem; }
+
+  /* Stats */
+  .stats { list-style: none; padding: 0; margin: 2.5rem 0 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; }
+  .stats li { background: var(--card); border: 1px solid var(--line); border-radius: .9rem; padding: 1.1rem 1.2rem; text-align: center; }
+  .stats strong { display: block; font-size: 1.45rem; letter-spacing: -.02em; background: var(--hero); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  @media (prefers-color-scheme: dark) { .stats strong { background: linear-gradient(90deg, #c9a7ff, #ffa86b); -webkit-background-clip: text; background-clip: text; } }
+  .stats span { color: var(--muted); font-size: .9rem; }
+
+  /* WSLg comparison */
+  .compare { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; }
+  .vs { background: var(--card); border: 1px solid var(--line); border-radius: .9rem; padding: 1.3rem 1.4rem; }
+  .vs.ours { border: 2px solid transparent; background: linear-gradient(var(--card), var(--card)) padding-box, var(--hero) border-box; }
+  .vs .how { font-size: .8rem; text-transform: uppercase; letter-spacing: .06em; font-weight: 700; color: var(--muted); }
+  .vs.ours .how { color: var(--accent); }
+  .vs h3 { font-size: 1.3rem; margin: .2rem 0 .6rem; }
+  .vs ul { margin: 0; padding-left: 1.1rem; color: var(--muted); font-size: .95rem; }
+  .vs li + li { margin-top: .35rem; }
+  .note { color: var(--muted); font-size: .9rem; margin-top: 1rem; }
+
+  /* Features */
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(13.5rem, 1fr)); gap: 1rem; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: .8rem; padding: 1.1rem 1.2rem; position: relative; overflow: hidden; }
+  .card::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: var(--hero); }
+  .card p { margin: 0; color: var(--muted); font-size: .95rem; }
+
+  /* Flow */
+  .flow { display: flex; flex-wrap: wrap; gap: .5rem 2rem; margin: 0 0 1.5rem; padding: 0; list-style: none; }
+  .flow li { position: relative; background: var(--card); border: 1px solid var(--line); border-radius: .6rem; padding: .5rem .9rem; font-weight: 600; }
+  .flow li small { display: block; color: var(--muted); font-size: .8rem; font-weight: 400; }
+  .flow li + li::before { content: "→"; color: var(--accent); position: absolute; left: -1.45rem; top: 50%; transform: translateY(-50%); }
+  .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 0 2rem; }
+
+  footer { margin-top: 5rem; background: var(--hero); color: rgba(255,255,255,.85); padding: 2rem 0 2.5rem; font-size: .92rem; }
+  footer a { color: #fff; }
+  footer nav { display: flex; flex-wrap: wrap; gap: 1.25rem; margin-bottom: 1rem; font-weight: 600; }
+  footer p { margin: 0; }
+
+  @media (max-width: 44rem) {
+    body { font-size: 16px; }
+    .hero { padding: 3rem 0 6rem; }
+    .shot { margin-top: -4.5rem; }
+    .distro, .then, .cols, .compare, .stats { grid-template-columns: 1fr; }
+    .distro, .then { padding: 1.1rem 1rem; }
+    .distro pre, .then pre { font-size: .72rem; padding: .7rem .8rem; }
+    .flow { flex-direction: column; gap: 1.5rem; }
+    .flow li + li::before { content: "↓"; left: 50%; top: -1.3rem; transform: translateX(-50%); }
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <h1>Weaselway</h1>
+    <p class="lead">A Linux desktop on WSL2, rendered on your GPU and shown in a window on Windows.</p>
+    <p class="sub">Work in GNOME, Plasma or another Wayland desktop on a Windows laptop. It runs inside WSL2 and responds like a local desktop.</p>
+    <ul class="chips"><li>NixOS</li><li>Ubuntu</li><li>Arch Linux</li><li>CachyOS</li></ul>
+    <div class="buttons">
+      <a class="btn primary" href="#install">Get started</a>
+      <a class="btn ghost" href="https://github.com/weaselway/weaselway">Source on GitHub</a>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+  <figure class="shot">
+    <img src="screenshot.png" width="1440" height="900"
+         alt="The GNOME desktop in a window on Windows, showing Chromium's GPU status page and NetQuake">
+    <figcaption>GNOME in its viewer window on Windows, with Chromium's GPU page and NetQuake.</figcaption>
+  </figure>
+
+  <ul class="stats">
+    <li><strong>120 fps at 4K</strong><span>great performance even on older hardware</span></li>
+    <li><strong>No video encoding</strong><span>frames reach the viewer through shared memory, uncompressed</span></li>
+    <li><strong>Ready for calls</strong><span>video calls and Bluetooth headphones work</span></li>
+  </ul>
+
+  <section id="why">
+    <h2>Why not just WSLg?</h2>
+    <p class="intro">WSL already runs Linux GUI apps through WSLg. WSLg shows single app windows, though, and has no way to show a whole desktop. Weaselway is for people who want to work in a Linux desktop on a Windows machine, for example when your company only gives you a Windows laptop. You get GNOME's overview, Plasma's panels or a tiling compositor such as Hyprland.</p>
+    <div class="compare">
+      <div class="vs ours">
+        <span class="how">Weaselway</span>
+        <h3>A Linux desktop in a window</h3>
+        <ul>
+          <li>The whole desktop session runs in WSL and shows up in one window, or in up to four.</li>
+          <li>GNOME, Plasma or another compositor arranges the apps.</li>
+          <li>The desktop's panel, workspaces, settings and touchpad gestures work.</li>
+        </ul>
+      </div>
+      <div class="vs">
+        <span class="how">WSLg</span>
+        <h3>Apps on the Windows desktop</h3>
+        <ul>
+          <li>Each Linux app opens as its own window on Windows.</li>
+          <li>Windows arranges the app windows.</li>
+          <li>The Linux desktop's panel, workspaces and settings are missing.</li>
+        </ul>
+      </div>
+    </div>
+    <p class="note">Weaselway still needs WSLg turned on, which is the default. The viewer receives the frames through shared memory that WSL sets up only for WSLg.</p>
+  </section>
+
+  <section>
+    <h2>What works</h2>
+    <div class="grid">
+      <div class="card"><h3>GPU rendering</h3><p>OpenGL and Vulkan run on Direct3D 12 through Mesa, on the GPU that Windows shares with WSL.</p></div>
+      <div class="card"><h3>GNOME, Plasma and others</h3><p>sway, Hyprland, niri and other Wayland compositors start through a session script you write.</p></div>
+      <div class="card"><h3>Several monitors</h3><p>Show the desktop as up to four monitors, each in its own window that you can place on any Windows monitor.</p></div>
+      <div class="card"><h3>Keyboard, mouse and touchpad</h3><p>Swipe and pinch gestures with three or more fingers reach the desktop, so its own gestures work.</p></div>
+      <div class="card"><h3>Audio and video calls</h3><p>Sound plays on Windows, and Linux apps can use the microphone and a USB camera. Video calls work.</p></div>
+      <div class="card"><h3>Clipboard</h3><p>Copy and paste text, HTML and images between Windows and Linux apps.</p></div>
+      <div class="card"><h3>USB and Bluetooth</h3><p>Attach USB devices shared with usbipd-win. Common USB Bluetooth adapters work, including with Bluetooth headphones.</p></div>
+      <div class="card"><h3>Laptop battery</h3><p>The desktop shows the battery charge that Windows reports.</p></div>
+    </div>
+  </section>
+
+  <section id="install">
+    <h2>Pick your distro</h2>
+    <p class="intro">You need an x86_64 Windows machine with WSL2 and a GPU whose Windows driver supports WSL.</p>
+    <div class="distros">
+      <div class="distro nixos">
+        <div>
+          <h3>NixOS</h3>
+          <span class="how">Ready-made image</span>
+          <p>Download the GNOME or Plasma image from the <a href="https://github.com/weaselway/weaselway/releases/latest">latest release</a> and import it in PowerShell. Everything comes prebuilt. Existing NixOS-WSL systems can add the <a href="https://github.com/weaselway/weaselway#into-an-existing-nixos-wsl-system">NixOS module</a> instead.</p>
+        </div>
+<pre><code>wsl --install --from-file \
+  nixos-weaselway-gnome-&lt;version&gt;.wsl \
+  --name Weaselway
+wsl -d Weaselway</code></pre>
+      </div>
+      <div class="distro ubuntu">
+        <div>
+          <h3>Ubuntu</h3>
+          <span class="how">Install script</span>
+          <p>The script adds weaselway to the GNOME, Plasma or Hyprland packages from Ubuntu. It compiles Mesa and the compositor on your machine.</p>
+        </div>
+<pre><code>git clone https://github.com/weaselway/weaselway
+cd weaselway
+./distro/install.py</code></pre>
+      </div>
+      <div class="distro arch">
+        <div>
+          <h3>Arch Linux</h3>
+          <span class="how">Install script</span>
+          <p>The same script works on Arch Linux and CachyOS, with GNOME, Plasma or Hyprland. Arch's WSL image needs <a href="https://github.com/weaselway/weaselway/blob/main/distro/README.md#1-install-the-distro">a user and a few packages</a> first.</p>
+        </div>
+<pre><code>git clone https://github.com/weaselway/weaselway
+cd weaselway
+./distro/install.py</code></pre>
+      </div>
+    </div>
+
+    <div class="then">
+      <div>
+        <p><strong>Then start the desktop and open it in a window.</strong></p>
+        <p><code>ww-install-viewer-link</code> puts a shortcut on the Windows desktop that does both in one click.</p>
+      </div>
+<pre><code>ww-start-session
+ww-start-viewer</code></pre>
+    </div>
+  </section>
+
+  <section>
+    <h2>How it works</h2>
+    <p class="intro">Four parts carry each frame from the Linux desktop to your Windows screen.</p>
+    <ol class="flow">
+      <li>Compositor<small>GNOME, Plasma, …</small></li>
+      <li>dxgdrm<small>virtual display</small></li>
+      <li>weaselwayd<small>reads each frame</small></li>
+      <li>Viewer<small>FreeRDP on Windows</small></li>
+    </ol>
+    <div class="cols">
+      <p>The compositor runs unmodified. The dxgdrm kernel module gives it a virtual display, which the compositor drives like a monitor through KMS (the kernel interface for display output). Mesa's d3d12 driver runs OpenGL and Vulkan on Direct3D 12, so the frames are drawn on your GPU.</p>
+      <p>The weaselwayd daemon reads each finished frame and passes it through shared memory to the viewer, a Windows build of FreeRDP (an open-source Remote Desktop client). Keyboard, mouse, touchpad and audio use the same connection. <a href="https://github.com/weaselway/weaselway/blob/main/ARCHITECTURE.md">ARCHITECTURE.md</a> has the details.</p>
+    </div>
+  </section>
+</div>
+
+<footer>
+  <div class="wrap">
+    <nav>
+      <a href="https://github.com/weaselway/weaselway#readme">README</a>
+      <a href="https://github.com/weaselway/weaselway/blob/main/CHANGELOG.md">Changelog</a>
+      <a href="https://github.com/weaselway/weaselway/issues">Issues</a>
+      <a href="https://discord.gg/6HG8ac8XWZ">Discord</a>
+    </nav>
+    <p>Weaselway is MIT licensed. AI was used heavily to build it; it exists because its author wanted GNOME on a Windows machine.</p>
+  </div>
+</footer>
+
+</body>
+</html>
