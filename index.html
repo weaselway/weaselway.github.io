@@ -252,7 +252,7 @@ ww-start-viewer</code></pre>
     </ol>
     <div class="cols">
       <p>The compositor runs unmodified. The dxgdrm kernel module gives it a virtual display, which the compositor drives like a monitor through KMS (the kernel interface for display output). Mesa's d3d12 driver runs OpenGL and Vulkan on Direct3D 12, so the frames are drawn on your GPU.</p>
-      <p>The weaselwayd daemon reads each finished frame and passes it through shared memory to the viewer, a Windows build of FreeRDP (an open-source Remote Desktop client). Keyboard, mouse, touchpad and audio use the same connection. <a href="https://github.com/weaselway/weaselway/blob/main/ARCHITECTURE.md">ARCHITECTURE.md</a> has the details.</p>
+      <p>The weaselwayd daemon reads each finished frame and passes it through shared memory to the viewer, a Windows build of FreeRDP (an open-source Remote Desktop client). Keyboard, mouse, touchpad and audio use the same connection. The <a href="https://github.com/weaselway/weaselway/blob/main/ARCHITECTURE.md">architecture overview</a> has the details.</p>
     </div>
   </section>
 </div>
