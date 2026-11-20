@@ -157,13 +157,14 @@
 
   <section id="why">
     <h2>Why not just WSLg?</h2>
-    <p class="intro">WSL (the Windows Subsystem for Linux) already runs Linux GUI apps through WSLg. WSLg shows single app windows, though, and has no way to show a whole desktop. Weaselway is for developers whose company gives them a Windows laptop but who want to work in Linux. It also lets you try a Linux desktop without installing a second operating system. You get GNOME's overview, Plasma's panels or a tiling compositor (a desktop that places windows side by side) such as Hyprland.</p>
+    <p class="intro">WSL (the Windows Subsystem for Linux) already runs Linux GUI apps through WSLg. WSLg shows single app windows, though, and has no way to show a whole desktop. Weaselway is for developers whose company gives them a Windows laptop but who want to work in Linux. It also lets you try a Linux desktop without installing a second operating system. You get GNOME's overview, Plasma's panels or a tiling compositor such as Hyprland.</p>
     <div class="compare">
       <div class="vs ours">
         <span class="how">Weaselway</span>
-        <h3>A Linux desktop in a window</h3>
+        <h3>A Linux desktop in a window or fullscreen</h3>
         <ul>
           <li>The whole desktop session runs in WSL and shows up in one window, or in up to four.</li>
+          <li>Right Shift+Right Ctrl+Enter switches a window to fullscreen and back.</li>
           <li>GNOME, Plasma or another compositor arranges the apps.</li>
           <li>The desktop's panel, workspaces, settings and touchpad gestures work.</li>
         </ul>
@@ -175,6 +176,7 @@
           <li>Each Linux app opens as its own window on Windows.</li>
           <li>Windows arranges the app windows.</li>
           <li>The Linux desktop's panel, workspaces and settings are missing.</li>
+          <li>Linux and Windows apps mix on one desktop, so working with them feels disjointed.</li>
         </ul>
       </div>
     </div>
@@ -203,7 +205,7 @@
         <div>
           <h3>NixOS</h3>
           <span class="how">Ready-made image</span>
-          <p>Download the GNOME or Plasma image from the <a href="https://github.com/weaselway/weaselway/releases/latest">latest release</a> and import it in PowerShell. Everything comes prebuilt. The image becomes a WSL distro of its own, which <code>wsl --unregister Weaselway</code> removes again. Existing NixOS-WSL systems can add the <a href="https://github.com/weaselway/weaselway#into-an-existing-nixos-wsl-system">NixOS module</a> instead.</p>
+          <p>Download the GNOME or Plasma image from the <a href="https://github.com/weaselway/weaselway/releases/latest">latest release</a> and import it in PowerShell. Everything comes prebuilt. Existing NixOS-WSL systems can add the <a href="https://github.com/weaselway/weaselway#into-an-existing-nixos-wsl-system">NixOS module</a> instead.</p>
         </div>
 <pre><code>wsl --install --from-file \
   nixos-weaselway-gnome-&lt;version&gt;.wsl \
@@ -214,7 +216,7 @@ wsl -d Weaselway</code></pre>
         <div>
           <h3>Ubuntu</h3>
           <span class="how">Install script</span>
-          <p>The script adds weaselway to the GNOME, Plasma or Hyprland packages from Ubuntu. It compiles Mesa and the compositor on your machine, which takes 20 to 45 minutes on GitHub's build machines.</p>
+          <p>The script adds weaselway to the GNOME, Plasma or Hyprland packages from Ubuntu. It compiles Mesa and the compositor on your machine, which leaves you time for a coffee.</p>
         </div>
 <pre><code>git clone https://github.com/weaselway/weaselway
 cd weaselway
@@ -224,7 +226,7 @@ cd weaselway
         <div>
           <h3>Arch Linux</h3>
           <span class="how">Install script</span>
-          <p>The script adds weaselway to the GNOME, Plasma or Hyprland packages from Arch Linux or CachyOS. It compiles Mesa and the compositor on your machine, which takes 20 to 45 minutes on GitHub's build machines. Arch's WSL image needs <a href="https://github.com/weaselway/weaselway/blob/main/distro/README.md#1-install-the-distro">a user and a few packages</a> first.</p>
+          <p>The script adds weaselway to the GNOME, Plasma or Hyprland packages from Arch Linux or CachyOS. It compiles Mesa and the compositor on your machine, which leaves you time for a coffee. Arch's WSL image needs <a href="https://github.com/weaselway/weaselway/blob/main/distro/README.md#1-install-the-distro">a user and a few packages</a> first.</p>
         </div>
 <pre><code>git clone https://github.com/weaselway/weaselway
 cd weaselway
