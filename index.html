@@ -52,9 +52,9 @@
   .hero .lead { font-size: clamp(1.2rem, 3vw, 1.6rem); line-height: 1.35; max-width: 38rem; margin-bottom: .9rem; font-weight: 500; }
   .hero .sub { color: rgba(255,255,255,.8); max-width: 36rem; }
   .chips { display: flex; flex-wrap: wrap; gap: .5rem; margin: 1.25rem 0 2rem; padding: 0; list-style: none; }
-  .chips li { background: rgba(255,255,255,.14); border: 1px solid rgba(255,255,255,.25); border-radius: 2rem; padding: .25rem .8rem; font-size: .9rem; font-weight: 600; }
+  .chips li { background: rgba(255,255,255,.14); border: 1px solid rgba(255,255,255,.25); border-radius: 2rem; padding: 0 .8rem; height: 2rem; place-content: center; font-size: .9rem; font-weight: 600; }
   .buttons { display: flex; flex-wrap: wrap; gap: .75rem; }
-  .btn { display: inline-block; padding: .7rem 1.2rem; border-radius: .6rem; text-decoration: none; font-weight: 600; }
+  .btn { display: block; padding: 0 1.2rem; height: 3rem; place-content: center; border-radius: .6rem; text-decoration: none; font-weight: 600; }
   .btn.primary { background: #fff; color: #3a1752; }
   .btn.ghost { color: #fff; border: 1px solid rgba(255,255,255,.5); }
 
@@ -79,7 +79,7 @@
   .then p + p { margin-top: .6rem; color: var(--muted); font-size: .95rem; }
 
   /* Stats */
-  .stats { list-style: none; padding: 0; margin: 2.5rem 0 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; }
+  .stats { list-style: none; padding: 0; margin: 2.5rem 0 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr)); gap: 1rem; }
   .stats li { background: var(--card); border: 1px solid var(--line); border-radius: .9rem; padding: 1.1rem 1.2rem; text-align: center; }
   .stats strong { display: block; font-size: 1.45rem; letter-spacing: -.02em; background: var(--hero); -webkit-background-clip: text; background-clip: text; color: transparent; }
   @media (prefers-color-scheme: dark) { .stats strong { background: linear-gradient(90deg, #c9a7ff, #ffa86b); -webkit-background-clip: text; background-clip: text; } }
@@ -98,8 +98,8 @@
 
   /* Features */
   .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(13.5rem, 1fr)); gap: 1rem; }
-  .card { background: var(--card); border: 1px solid var(--line); border-radius: .8rem; padding: 1.1rem 1.2rem; position: relative; overflow: hidden; }
-  .card::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: var(--hero); }
+  /* The gradient fills the left corner-radius width of the border box; the card colour covers it except in the transparent left border, so the edge follows the rounded corners like .distro's. Wider, it shows through the anti-aliased right corners. */
+  .card { background: linear-gradient(var(--card), var(--card)) padding-box, linear-gradient(#1a1440, #4a1f6e 45%, #b8432a 85%, #e8873a) border-box 0 0 / .8rem 100% no-repeat; border: 1px solid var(--line); border-left: 4px solid transparent; border-radius: .8rem; padding: 1.1rem 1.2rem; }
   .card p { margin: 0; color: var(--muted); font-size: .95rem; }
 
   /* Flow */
@@ -132,7 +132,7 @@
   <div class="wrap">
     <h1>Weaselway</h1>
     <p class="lead">A Linux desktop on WSL2, rendered on your GPU and shown in a window on Windows.</p>
-    <p class="sub">Work in GNOME, Plasma or another Wayland desktop on a Windows laptop. It runs inside WSL2 and responds like a local desktop.</p>
+    <p class="sub">Work in GNOME, Plasma or another Wayland desktop on a Windows laptop, on up to four monitors. It runs inside WSL2 and feels as fast as a local desktop.</p>
     <ul class="chips"><li>NixOS</li><li>Ubuntu</li><li>Arch Linux</li><li>CachyOS</li></ul>
     <div class="buttons">
       <a class="btn primary" href="#install">Get started</a>
@@ -149,14 +149,15 @@
   </figure>
 
   <ul class="stats">
-    <li><strong>120 fps at 4K</strong><span>great performance even on older hardware</span></li>
-    <li><strong>No video encoding</strong><span>frames reach the viewer through shared memory, uncompressed</span></li>
+    <li><strong>120 fps at 4K</strong><span>frames skip video encoding, so even older hardware keeps up</span></li>
+    <li><strong>Up to 4 monitors</strong><span>one window per monitor, placed where you like</span></li>
+    <li><strong>150+ Mesa fixes</strong><span>for the drivers that run OpenGL and Vulkan on Direct3D 12</span></li>
     <li><strong>Ready for calls</strong><span>video calls and Bluetooth headphones work</span></li>
   </ul>
 
   <section id="why">
     <h2>Why not just WSLg?</h2>
-    <p class="intro">WSL already runs Linux GUI apps through WSLg. WSLg shows single app windows, though, and has no way to show a whole desktop. Weaselway is for people who want to work in a Linux desktop on a Windows machine, for example when your company only gives you a Windows laptop. You get GNOME's overview, Plasma's panels or a tiling compositor such as Hyprland.</p>
+    <p class="intro">WSL already runs Linux GUI apps through WSLg. WSLg shows single app windows, though, and has no way to show a whole desktop. Weaselway is for developers whose company gives them a Windows laptop but who want to work in Linux. It also lets you try a Linux desktop without installing a second operating system. You get GNOME's overview, Plasma's panels or a tiling compositor such as Hyprland.</p>
     <div class="compare">
       <div class="vs ours">
         <span class="how">Weaselway</span>
@@ -183,7 +184,7 @@
   <section>
     <h2>What works</h2>
     <div class="grid">
-      <div class="card"><h3>GPU rendering</h3><p>OpenGL and Vulkan run on Direct3D 12 through Mesa, on the GPU that Windows shares with WSL.</p></div>
+      <div class="card"><h3>GPU rendering</h3><p>OpenGL and Vulkan run on Direct3D 12 through Mesa, on the GPU that Windows shares with WSL. Weaselway's Mesa adds more than 150 fixes and missing features to these drivers.</p></div>
       <div class="card"><h3>GNOME, Plasma and others</h3><p>sway, Hyprland, niri and other Wayland compositors start through a session script you write.</p></div>
       <div class="card"><h3>Several monitors</h3><p>Show the desktop as up to four monitors, each in its own window that you can place on any Windows monitor.</p></div>
       <div class="card"><h3>Keyboard, mouse and touchpad</h3><p>Swipe and pinch gestures with three or more fingers reach the desktop, so its own gestures work.</p></div>
@@ -223,7 +224,7 @@ cd weaselway
         <div>
           <h3>Arch Linux</h3>
           <span class="how">Install script</span>
-          <p>The same script works on Arch Linux and CachyOS, with GNOME, Plasma or Hyprland. Arch's WSL image needs <a href="https://github.com/weaselway/weaselway/blob/main/distro/README.md#1-install-the-distro">a user and a few packages</a> first.</p>
+          <p>The script adds weaselway to the GNOME, Plasma or Hyprland packages from Arch Linux or CachyOS. It compiles Mesa and the compositor on your machine. Arch's WSL image needs <a href="https://github.com/weaselway/weaselway/blob/main/distro/README.md#1-install-the-distro">a user and a few packages</a> first.</p>
         </div>
 <pre><code>git clone https://github.com/weaselway/weaselway
 cd weaselway
