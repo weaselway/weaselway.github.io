@@ -152,12 +152,12 @@
     <li><strong>120 fps at 4K</strong><span>frames skip video encoding, so even older hardware keeps up</span></li>
     <li><strong>Up to 4 monitors</strong><span>one window per monitor, placed where you like</span></li>
     <li><strong>150+ Mesa fixes</strong><span>for the drivers that run OpenGL and Vulkan on Direct3D 12</span></li>
-    <li><strong>Ready for calls</strong><span>video calls and Bluetooth headphones work</span></li>
+    <li><strong>Ready for office</strong><span>video calls, Bluetooth headphones and passkeys over Bluetooth work</span></li>
   </ul>
 
   <section id="why">
     <h2>Why not just WSLg?</h2>
-    <p class="intro">WSL already runs Linux GUI apps through WSLg. WSLg shows single app windows, though, and has no way to show a whole desktop. Weaselway is for developers whose company gives them a Windows laptop but who want to work in Linux. It also lets you try a Linux desktop without installing a second operating system. You get GNOME's overview, Plasma's panels or a tiling compositor such as Hyprland.</p>
+    <p class="intro">WSL (the Windows Subsystem for Linux) already runs Linux GUI apps through WSLg. WSLg shows single app windows, though, and has no way to show a whole desktop. Weaselway is for developers whose company gives them a Windows laptop but who want to work in Linux. It also lets you try a Linux desktop without installing a second operating system. You get GNOME's overview, Plasma's panels or a tiling compositor (a desktop that places windows side by side) such as Hyprland.</p>
     <div class="compare">
       <div class="vs ours">
         <span class="how">Weaselway</span>
@@ -184,26 +184,26 @@
   <section>
     <h2>What works</h2>
     <div class="grid">
-      <div class="card"><h3>GPU rendering</h3><p>OpenGL and Vulkan run on Direct3D 12 through Mesa, on the GPU that Windows shares with WSL. Weaselway's Mesa adds more than 150 fixes and missing features to these drivers.</p></div>
-      <div class="card"><h3>GNOME, Plasma and others</h3><p>sway, Hyprland, niri and other Wayland compositors start through a session script you write.</p></div>
+      <div class="card"><h3>GPU rendering</h3><p>OpenGL and Vulkan run on Direct3D 12 through Mesa (the open-source Linux graphics drivers), on the GPU that Windows shares with WSL. Weaselway's Mesa adds more than 150 fixes and missing features to these drivers.</p></div>
+      <div class="card"><h3>GNOME, Plasma and others</h3><p>GNOME and Plasma come set up, and the install script also sets up Hyprland. Other Wayland compositors, such as sway and niri, start through a session script you write.</p></div>
       <div class="card"><h3>Several monitors</h3><p>Show the desktop as up to four monitors, each in its own window that you can place on any Windows monitor.</p></div>
       <div class="card"><h3>Keyboard, mouse and touchpad</h3><p>Swipe and pinch gestures with three or more fingers reach the desktop, so its own gestures work.</p></div>
       <div class="card"><h3>Audio and video calls</h3><p>Sound plays on Windows, and Linux apps can use the microphone and a USB camera. Video calls work.</p></div>
       <div class="card"><h3>Clipboard</h3><p>Copy and paste text, HTML and images between Windows and Linux apps.</p></div>
-      <div class="card"><h3>USB and Bluetooth</h3><p>Attach USB devices shared with usbipd-win. Common USB Bluetooth adapters work, including with Bluetooth headphones.</p></div>
+      <div class="card"><h3>USB and Bluetooth</h3><p>Attach USB devices shared with usbipd-win. Common USB Bluetooth adapters work, for headphones and for signing in with a passkey on your phone.</p></div>
       <div class="card"><h3>Laptop battery</h3><p>The desktop shows the battery charge that Windows reports.</p></div>
     </div>
   </section>
 
   <section id="install">
     <h2>Pick your distro</h2>
-    <p class="intro">You need an x86_64 Windows machine with WSL2 and a GPU whose Windows driver supports WSL. Nothing gets installed on Windows: the viewer runs from inside WSL. Only USB devices need <a href="https://github.com/dorssel/usbipd-win">usbipd-win</a> on the Windows side.</p>
+    <p class="intro">You need an x86_64 Windows machine with WSL2 and a GPU whose Windows driver supports WSL. The viewer runs from inside WSL, so you install nothing on Windows. Only USB devices need <a href="https://github.com/dorssel/usbipd-win">usbipd-win</a> (a tool that shares USB devices with WSL) there.</p>
     <div class="distros">
       <div class="distro nixos">
         <div>
           <h3>NixOS</h3>
           <span class="how">Ready-made image</span>
-          <p>Download the GNOME or Plasma image from the <a href="https://github.com/weaselway/weaselway/releases/latest">latest release</a> and import it in PowerShell. Everything comes prebuilt, and the image becomes a WSL distro of its own, so <code>wsl --unregister Weaselway</code> removes it again. Existing NixOS-WSL systems can add the <a href="https://github.com/weaselway/weaselway#into-an-existing-nixos-wsl-system">NixOS module</a> instead.</p>
+          <p>Download the GNOME or Plasma image from the <a href="https://github.com/weaselway/weaselway/releases/latest">latest release</a> and import it in PowerShell. Everything comes prebuilt. The image becomes a WSL distro of its own, which <code>wsl --unregister Weaselway</code> removes again. Existing NixOS-WSL systems can add the <a href="https://github.com/weaselway/weaselway#into-an-existing-nixos-wsl-system">NixOS module</a> instead.</p>
         </div>
 <pre><code>wsl --install --from-file \
   nixos-weaselway-gnome-&lt;version&gt;.wsl \
@@ -252,8 +252,8 @@ ww-start-viewer</code></pre>
       <li>Viewer<small>FreeRDP on Windows</small></li>
     </ol>
     <div class="cols">
-      <p>The compositor runs unmodified. The dxgdrm kernel module gives it a virtual display, which the compositor drives like a monitor through KMS (the kernel interface for display output). dxgdrm loads into the Linux kernel of the WSL virtual machine, not into Windows. Mesa's d3d12 driver runs OpenGL and Vulkan on Direct3D 12, so the frames are drawn on your GPU.</p>
-      <p>The weaselwayd daemon reads each finished frame and passes it through shared memory to the viewer, a Windows build of FreeRDP (an open-source Remote Desktop client). Keyboard, mouse, touchpad and audio use the same connection. The <a href="https://github.com/weaselway/weaselway/blob/main/ARCHITECTURE.md">architecture overview</a> has the details.</p>
+      <p>The dxgdrm kernel module gives the compositor a virtual display, which the compositor drives like a monitor through KMS (the kernel interface for display output). dxgdrm loads into the Linux kernel of the WSL virtual machine, not into Windows. The compositor needs no patch for this; weaselway patches mutter, KWin and Hyprland only for bugs that show up on the virtual display. Mesa's d3d12 driver runs OpenGL and Vulkan on Direct3D 12, so the frames are drawn on your GPU.</p>
+      <p>The weaselwayd daemon (a background service) reads each finished frame and passes it through shared memory to the viewer, a Windows build of FreeRDP (an open-source Remote Desktop client). Keyboard, mouse, touchpad and audio use the same connection. The <a href="https://github.com/weaselway/weaselway/blob/main/ARCHITECTURE.md">architecture overview</a> has the details.</p>
     </div>
   </section>
 </div>
@@ -266,7 +266,7 @@ ww-start-viewer</code></pre>
       <a href="https://github.com/weaselway/weaselway/issues">Issues</a>
       <a href="https://discord.gg/6HG8ac8XWZ">Discord</a>
     </nav>
-    <p>Weaselway is MIT licensed. AI was used heavily to build it; it exists because its author wanted GNOME on a Windows machine.</p>
+    <p>Weaselway is MIT licensed. AI was used heavily to build it. It exists because its author wanted GNOME on a Windows machine.</p>
   </div>
 </footer>
 
