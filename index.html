@@ -197,13 +197,13 @@
 
   <section id="install">
     <h2>Pick your distro</h2>
-    <p class="intro">You need an x86_64 Windows machine with WSL2 and a GPU whose Windows driver supports WSL.</p>
+    <p class="intro">You need an x86_64 Windows machine with WSL2 and a GPU whose Windows driver supports WSL. Nothing gets installed on Windows: the viewer runs from inside WSL. Only USB devices need <a href="https://github.com/dorssel/usbipd-win">usbipd-win</a> on the Windows side.</p>
     <div class="distros">
       <div class="distro nixos">
         <div>
           <h3>NixOS</h3>
           <span class="how">Ready-made image</span>
-          <p>Download the GNOME or Plasma image from the <a href="https://github.com/weaselway/weaselway/releases/latest">latest release</a> and import it in PowerShell. Everything comes prebuilt. Existing NixOS-WSL systems can add the <a href="https://github.com/weaselway/weaselway#into-an-existing-nixos-wsl-system">NixOS module</a> instead.</p>
+          <p>Download the GNOME or Plasma image from the <a href="https://github.com/weaselway/weaselway/releases/latest">latest release</a> and import it in PowerShell. Everything comes prebuilt, and the image becomes a WSL distro of its own, so <code>wsl --unregister Weaselway</code> removes it again. Existing NixOS-WSL systems can add the <a href="https://github.com/weaselway/weaselway#into-an-existing-nixos-wsl-system">NixOS module</a> instead.</p>
         </div>
 <pre><code>wsl --install --from-file \
   nixos-weaselway-gnome-&lt;version&gt;.wsl \
@@ -214,7 +214,7 @@ wsl -d Weaselway</code></pre>
         <div>
           <h3>Ubuntu</h3>
           <span class="how">Install script</span>
-          <p>The script adds weaselway to the GNOME, Plasma or Hyprland packages from Ubuntu. It compiles Mesa and the compositor on your machine.</p>
+          <p>The script adds weaselway to the GNOME, Plasma or Hyprland packages from Ubuntu. It compiles Mesa and the compositor on your machine, which takes 20 to 45 minutes on GitHub's build machines.</p>
         </div>
 <pre><code>git clone https://github.com/weaselway/weaselway
 cd weaselway
@@ -224,7 +224,7 @@ cd weaselway
         <div>
           <h3>Arch Linux</h3>
           <span class="how">Install script</span>
-          <p>The script adds weaselway to the GNOME, Plasma or Hyprland packages from Arch Linux or CachyOS. It compiles Mesa and the compositor on your machine. Arch's WSL image needs <a href="https://github.com/weaselway/weaselway/blob/main/distro/README.md#1-install-the-distro">a user and a few packages</a> first.</p>
+          <p>The script adds weaselway to the GNOME, Plasma or Hyprland packages from Arch Linux or CachyOS. It compiles Mesa and the compositor on your machine, which takes 20 to 45 minutes on GitHub's build machines. Arch's WSL image needs <a href="https://github.com/weaselway/weaselway/blob/main/distro/README.md#1-install-the-distro">a user and a few packages</a> first.</p>
         </div>
 <pre><code>git clone https://github.com/weaselway/weaselway
 cd weaselway
@@ -252,7 +252,7 @@ ww-start-viewer</code></pre>
       <li>Viewer<small>FreeRDP on Windows</small></li>
     </ol>
     <div class="cols">
-      <p>The compositor runs unmodified. The dxgdrm kernel module gives it a virtual display, which the compositor drives like a monitor through KMS (the kernel interface for display output). Mesa's d3d12 driver runs OpenGL and Vulkan on Direct3D 12, so the frames are drawn on your GPU.</p>
+      <p>The compositor runs unmodified. The dxgdrm kernel module gives it a virtual display, which the compositor drives like a monitor through KMS (the kernel interface for display output). dxgdrm loads into the Linux kernel of the WSL virtual machine, not into Windows. Mesa's d3d12 driver runs OpenGL and Vulkan on Direct3D 12, so the frames are drawn on your GPU.</p>
       <p>The weaselwayd daemon reads each finished frame and passes it through shared memory to the viewer, a Windows build of FreeRDP (an open-source Remote Desktop client). Keyboard, mouse, touchpad and audio use the same connection. The <a href="https://github.com/weaselway/weaselway/blob/main/ARCHITECTURE.md">architecture overview</a> has the details.</p>
     </div>
   </section>
