@@ -169,7 +169,7 @@
 
   <section id="why">
     <h2>Why not just WSLg?</h2>
-    <p class="intro">WSL (the Windows Subsystem for Linux) already runs Linux GUI apps through WSLg. WSLg shows single app windows, though, and has no way to show a whole desktop. Weaselway is for developers whose company gives them a Windows laptop but who want to work in Linux. It also lets you try a Linux desktop without installing a second operating system. You get GNOME's overview, Plasma's panels or a tiling compositor such as Hyprland.</p>
+    <p class="intro">WSL already runs Linux GUI apps through WSLg. WSLg shows single app windows, though, and has no way to show a whole desktop. Weaselway is for developers whose company gives them a Windows laptop but who want to work in Linux. It also lets you try a Linux desktop without installing a second operating system. You get GNOME's overview, Plasma's panels or a tiling compositor such as Hyprland.</p>
     <div class="compare">
       <div class="vs ours">
         <span class="how">Weaselway</span>
@@ -198,7 +198,7 @@
   <section>
     <h2>What works</h2>
     <div class="grid">
-      <div class="card"><h3>GPU rendering</h3><p>OpenGL and Vulkan run on Direct3D 12 through Mesa (the open-source Linux graphics drivers), on the GPU that Windows shares with WSL. Weaselway's Mesa adds more than 150 fixes and missing features to these drivers.</p></div>
+      <div class="card"><h3>GPU rendering</h3><p>OpenGL and Vulkan run on Direct3D 12 through Mesa, on the GPU that Windows shares with WSL. Weaselway's Mesa adds more than 150 fixes and missing features to these drivers.</p></div>
       <div class="card"><h3>GNOME, Plasma and others</h3><p>GNOME and Plasma come set up, and the install script also sets up Hyprland. Other Wayland compositors, such as sway and niri, start through a session script you write.</p></div>
       <div class="card"><h3>Several monitors</h3><p>Show the desktop as up to four monitors, each in its own window that you can place on any Windows monitor.</p></div>
       <div class="card"><h3>Keyboard, mouse and touchpad</h3><p>Swipe and pinch gestures with three or more fingers reach the desktop, so its own gestures work.</p></div>
@@ -266,8 +266,8 @@ ww-start-viewer</code></pre>
       <li>Viewer<small>FreeRDP on Windows</small></li>
     </ol>
     <div class="cols">
-      <p>The dxgdrm kernel module gives the compositor a virtual display, which the compositor drives like a monitor through KMS (the kernel interface for display output). dxgdrm loads into the Linux kernel of the WSL virtual machine, not into Windows. The compositor needs no patch for this; weaselway patches mutter, KWin and Hyprland only for bugs that show up on the virtual display. Mesa's d3d12 driver runs OpenGL and Vulkan on Direct3D 12, so the frames are drawn on your GPU.</p>
-      <p>The weaselwayd daemon (a background service) reads each finished frame and passes it through shared memory to the viewer, a Windows build of FreeRDP (an open-source Remote Desktop client). Keyboard, mouse, touchpad and audio use the same connection. The <a href="https://github.com/weaselway/weaselway/blob/main/ARCHITECTURE.md">architecture overview</a> has the details.</p>
+      <p>The dxgdrm kernel module gives the compositor a virtual display, which the compositor drives like a monitor through KMS (the kernel interface for display output). dxgdrm loads into the Linux kernel of the WSL virtual machine, not into Windows. Each WSL kernel needs its own build of dxgdrm, so after <code>wsl --update</code> installs a new kernel, the desktop does not start until a new release supports that kernel. The compositor needs no patch for this; weaselway patches mutter, KWin and Hyprland only for bugs that show up on the virtual display. Mesa's d3d12 driver runs OpenGL and Vulkan on Direct3D 12, so the frames are drawn on your GPU.</p>
+      <p>The weaselwayd daemon reads each finished frame and passes it through shared memory to the viewer, a Windows build of FreeRDP. Keyboard, mouse, touchpad and audio use the same connection. The <a href="https://github.com/weaselway/weaselway/blob/main/ARCHITECTURE.md">architecture overview</a> has the details.</p>
     </div>
   </section>
 </div>
